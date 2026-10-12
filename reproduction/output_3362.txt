@@ -1,0 +1,6 @@
+Usage: program --enable-verbose-logging --output-file-path --max-
+               retry-count --disable-cache-mode --config-file-
+               location --user-auth-token --auto-update-interval
+               --force-overwrite-existing --network-timeout-
+               seconds --debug-trace-enabled
+
