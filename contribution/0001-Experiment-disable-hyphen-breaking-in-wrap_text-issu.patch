@@ -1,0 +1,68 @@
+From 8ada84d2310b9c8d9e5348d121e951281d3d2785 Mon Sep 17 00:00:00 2001
+From: Bhumika Rai <you@example.com>
+Date: Tue, 13 Oct 2026 20:30:14 +0530
+Subject: [PATCH] Experiment: disable hyphen breaking in wrap_text (issue 3362)
+
+---
+ src/click/formatting.py   |  2 ++
+ test_usage_hyphen_3362.py | 33 +++++++++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
+ create mode 100644 test_usage_hyphen_3362.py
+
+diff --git a/src/click/formatting.py b/src/click/formatting.py
+index c4aa2de..f680f63 100644
+--- a/src/click/formatting.py
++++ b/src/click/formatting.py
+@@ -67,7 +67,9 @@ def wrap_text(
+         initial_indent=initial_indent,
+         subsequent_indent=subsequent_indent,
+         replace_whitespace=False,
++        break_on_hyphens=False,
+     )
++    
+     if not preserve_paragraphs:
+         return wrapper.fill(text)
+ 
+diff --git a/test_usage_hyphen_3362.py b/test_usage_hyphen_3362.py
+new file mode 100644
+index 0000000..e73fe57
+--- /dev/null
++++ b/test_usage_hyphen_3362.py
+@@ -0,0 +1,33 @@
++import click
++
++OPTIONS = [
++    "--enable-verbose-logging",
++    "--output-file-path",
++    "--max-retry-count",
++    "--disable-cache-mode",
++    "--config-file-location",
++    "--user-auth-token",
++    "--auto-update-interval",
++    "--force-overwrite-existing",
++    "--network-timeout-seconds",
++    "--debug-trace-enabled",
++]
++
++
++def make_usage():
++    formatter = click.HelpFormatter(width=65)
++    formatter.write_usage("program", " ".join(OPTIONS))
++    return formatter.getvalue()
++
++
++def test_options_are_not_split_at_hyphens():
++    """Issue #3362: every option must stay whole in the usage line."""
++    usage = make_usage()
++    for option in OPTIONS:
++        assert option in usage, f"{option} was split across lines"
++
++
++def test_usage_tokens_match_options():
++    """Splitting the output on whitespace should give back the options."""
++    tokens = make_usage().split()[2:]  # skip "Usage:" and "program"
++    assert tokens == OPTIONS
+\ No newline at end of file
+-- 
+2.46.2.windows.1
+
